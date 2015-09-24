@@ -375,7 +375,7 @@ function todos(state = [], action) {
       completed: false
     }];
   case COMPLETE_TODO:
-    const index = state.findIndex(todo => todo.id === action.id)
+    const index = state.findIndex(todo => todo.id === action.id);
     return [
       ...state.slice(0, index),
       Object.assign({}, state[index], {

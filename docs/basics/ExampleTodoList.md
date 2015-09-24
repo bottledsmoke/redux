@@ -94,7 +94,7 @@ function todos(state = [], action) {
       id: uuid.v4()
     }];
   case COMPLETE_TODO:
-    const index = state.findIndex(todo => todo.id === action.id)
+    const index = state.findIndex(todo => todo.id === action.id);
     return [
       ...state.slice(0, index),
       Object.assign({}, state[index], {

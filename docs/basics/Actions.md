@@ -25,16 +25,16 @@ import { ADD_TODO, REMOVE_TODO } from '../actionTypes';
 
 Other than `type`, the structure of an action object is really up to you. If you’re interested, check out [Flux Standard Action](https://github.com/acdlite/flux-standard-action) for recommendations on how actions could be constructed.
 
-We’ll add one more action type to describe a user ticking off a todo as completed. We refer to a particular todo by `index` because we store them in an array. In a real app it is wiser to generate a unique ID every time something new is created.
+We’ll add one more action type to describe a user ticking off a todo as completed. We refer to a particular todo with unique IDs every time something new is created.
 
 ```js
 {
   type: COMPLETE_TODO,
-  index: 5
+  id: "99a0dc6"
 }
 ```
 
-It’s a good idea to pass as little data in each action as possible. For example, it’s better to pass `index` than the whole todo object.
+It’s a good idea to pass as little data in each action as possible. For example, it’s better to pass `id` than the whole todo object.
 
 Finally, we’ll add one more action type for changing the currently visible todos.
 
