@@ -57,8 +57,8 @@ export function addTodo(text) {
   return { type: ADD_TODO, text };
 }
 
-export function completeTodo(index) {
-  return { type: COMPLETE_TODO, index };
+export function completeTodo(id) {
+  return { type: COMPLETE_TODO, id };
 }
 
 export function setVisibilityFilter(filter) {
@@ -73,6 +73,7 @@ export function setVisibilityFilter(filter) {
 ```js
 import { combineReducers } from 'redux';
 import { ADD_TODO, COMPLETE_TODO, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions';
+import uuid from 'node-uuid';
 const { SHOW_ALL } = VisibilityFilters;
 
 function visibilityFilter(state = SHOW_ALL, action) {
@@ -89,20 +90,23 @@ function todos(state = [], action) {
   case ADD_TODO:
     return [...state, {
       text: action.text,
-      completed: false
+      completed: false,
+      id: uuid.v4()
     }];
   case COMPLETE_TODO:
+    const index = state.findIndex(todo => todo.id === action.id)
     return [
-      ...state.slice(0, action.index),
-      Object.assign({}, state[action.index], {
+      ...state.slice(0, index),
+      Object.assign({}, state[index], {
         completed: true
       }),
-      ...state.slice(action.index + 1)
+      ...state.slice(index + 1)
     ];
   default:
     return state;
   }
 }
+
 
 const todoApp = combineReducers({
   visibilityFilter,
@@ -127,7 +131,8 @@ import Footer from '../components/Footer';
 class App extends Component {
   render() {
     // Injected by connect() call:
-    const { dispatch, todos, filteringCriteria, visibilityFilter } = this.props;
+    const { dispatch, visibleTodos, visibilityFilter } = this.props;
+
     return (
       <div>
         <AddTodo
@@ -135,10 +140,9 @@ class App extends Component {
             dispatch(addTodo(text))
           } />
         <TodoList
-          todos={todos}
-          filteringCriteria={filteringCriteria}
-          onTodoClick={index =>
-            dispatch(completeTodo(index))
+          todos={visibleTodos}
+          onTodoClick={id =>
+            dispatch(completeTodo(id))
           } />
         <Footer
           filter={visibilityFilter}
@@ -151,10 +155,10 @@ class App extends Component {
 }
 
 App.propTypes = {
-  filteringCriteria: PropTypes.func.isRequired,
   visibleTodos: PropTypes.arrayOf(PropTypes.shape({
     text: PropTypes.string.isRequired,
-    completed: PropTypes.bool.isRequired
+    completed: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired
   })),
   visibilityFilter: PropTypes.oneOf([
     'SHOW_ALL',
@@ -163,14 +167,14 @@ App.propTypes = {
   ]).isRequired
 };
 
-function selectTodos(filter) {
+function selectTodos(todos, filter) {
   switch (filter) {
   case VisibilityFilters.SHOW_ALL:
-    return function(todo){return true}
+    return todos;
   case VisibilityFilters.SHOW_COMPLETED:
-    return function(todo){return todo.completed};
+    return todos.filter(todo => todo.completed);
   case VisibilityFilters.SHOW_ACTIVE:
-    return function(todo){return !todo.completed};
+    return todos.filter(todo => !todo.completed);
   }
 }
 
@@ -178,9 +182,8 @@ function selectTodos(filter) {
 // Note: use https://github.com/faassen/reselect for better performance.
 function select(state) {
   return {
-    todos: state.todos,
-    visibilityFilter: state.visibilityFilter,
-    filteringCriteria: selectTodos(state.visibilityFilter)
+    visibleTodos: selectTodos(state.todos, state.visibilityFilter),
+    visibilityFilter: state.visibilityFilter
   };
 }
 
@@ -304,24 +307,22 @@ export default class TodoList extends Component {
   render() {
     return (
       <ul>
-        {this.props.todos.map((todo, index) => {
-          if (this.props.filteringCriteria(todo)) {
-            return <Todo {...todo}
-                         key={index}
-                         onClick={() => this.props.onTodoClick(index)}/>
-          }
-        })}
+        {this.props.todos.map((todo) =>
+          <Todo {...todo}
+                key={todo.id}
+                onClick={() => this.props.onTodoClick(todo.id)} />
+        )}
       </ul>
     );
   }
 }
 
 TodoList.propTypes = {
-  filteringCriteria: PropTypes.func.isRequired,
   onTodoClick: PropTypes.func.isRequired,
   todos: PropTypes.arrayOf(PropTypes.shape({
     text: PropTypes.string.isRequired,
-    completed: PropTypes.bool.isRequired
+    completed: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired
   }).isRequired).isRequired
 };
 ```

@@ -127,7 +127,7 @@ function todoApp(state = initialState, action) {
         text: action.text,
         completed: false
       }]
-    });    
+    });
   default:
     return state;
   }
@@ -140,13 +140,14 @@ Finally, the implementation of the `COMPLETE_TODO` handler shouldn’t come as a
 
 ```js
 case COMPLETE_TODO:
+  const index = state.todos.findIndex(todo => todo.id === action.id);
   return Object.assign({}, state, {
     todos: [
-      ...state.todos.slice(0, action.index),
-      Object.assign({}, state.todos[action.index], {
+      ...state.todos.slice(0, index),
+      Object.assign({}, state.todos[index], {
         completed: true
       }),
-      ...state.todos.slice(action.index + 1)
+      ...state.todos.slice(index + 1)
     ]
   });
 ```
@@ -172,13 +173,14 @@ function todoApp(state = initialState, action) {
       }]
     });
   case COMPLETE_TODO:
+    const index = state.todos.findIndex(todo => todo.id === action.id);
     return Object.assign({}, state, {
       todos: [
-        ...state.todos.slice(0, action.index),
-        Object.assign({}, state.todos[action.index], {
+        ...state.todos.slice(0, index),
+        Object.assign({}, state.todos[index], {
           completed: true
         }),
-        ...state.todos.slice(action.index + 1)
+        ...state.todos.slice(index + 1)
       ]
     });
   default:
@@ -198,12 +200,13 @@ function todos(state = [], action) {
       completed: false
     }];
   case COMPLETE_TODO:
+    const index = state.findIndex(todo => todo.id === action.id);
     return [
-      ...state.slice(0, action.index),
-      Object.assign({}, state[action.index], {
+      ...state.slice(0, index),
+      Object.assign({}, state[index], {
         completed: true
       }),
-      ...state.slice(action.index + 1)
+      ...state.slice(index + 1)
     ];
   default:
     return state;
@@ -253,12 +256,13 @@ function todos(state = [], action) {
       completed: false
     }];
   case COMPLETE_TODO:
+    const index = state.findIndex(todo => todo.id === action.id);
     return [
-      ...state.slice(0, action.index),
-      Object.assign({}, state[action.index], {
+      ...state.slice(0, index),
+      Object.assign({}, state[index], {
         completed: true
       }),
-      ...state.slice(action.index + 1)
+      ...state.slice(index + 1)
     ];
   default:
     return state;
@@ -371,12 +375,13 @@ function todos(state = [], action) {
       completed: false
     }];
   case COMPLETE_TODO:
+    const index = state.findIndex(todo => todo.id === action.id)
     return [
-      ...state.slice(0, action.index),
-      Object.assign({}, state[action.index], {
+      ...state.slice(0, index),
+      Object.assign({}, state[index], {
         completed: true
       }),
-      ...state.slice(action.index + 1)
+      ...state.slice(index + 1)
     ];
   default:
     return state;

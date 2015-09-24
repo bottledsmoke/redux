@@ -153,24 +153,22 @@ export default class TodoList extends Component {
   render() {
     return (
       <ul>
-        {this.props.todos.map((todo, index) => {
-          if (this.props.filteringCriteria(todo)) {
-            return <Todo {...todo}
-                         key={index}
-                         onClick={() => this.props.onTodoClick(index)}/>
-          }
-        })}
+        {this.props.todos.map((todo) =>
+          <Todo {...todo}
+                key={todo.id}
+                onClick={() => this.props.onTodoClick(todo.id)} />
+        )}
       </ul>
     );
   }
 }
 
 TodoList.propTypes = {
-  filteringCriteria: PropTypes.func.isRequired,
   onTodoClick: PropTypes.func.isRequired,
   todos: PropTypes.arrayOf(PropTypes.shape({
     text: PropTypes.string.isRequired,
-    completed: PropTypes.bool.isRequired
+    completed: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired
   }).isRequired).isRequired
 };
 ```
@@ -318,7 +316,8 @@ import Footer from '../components/Footer';
 class App extends Component {
   render() {
     // Injected by connect() call:
-    const { dispatch, todos, filteringCriteria, visibilityFilter } = this.props;
+    const { dispatch, visibleTodos, visibilityFilter } = this.props;
+
     return (
       <div>
         <AddTodo
@@ -326,10 +325,9 @@ class App extends Component {
             dispatch(addTodo(text))
           } />
         <TodoList
-          todos={todos}
-          filteringCriteria={filteringCriteria}
-          onTodoClick={index =>
-            dispatch(completeTodo(index))
+          todos={visibleTodos}
+          onTodoClick={id =>
+            dispatch(completeTodo(id))
           } />
         <Footer
           filter={visibilityFilter}
@@ -342,8 +340,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-  filteringCriteria: PropTypes.func.isRequired,
-  todos: PropTypes.arrayOf(PropTypes.shape({
+  visibleTodos: PropTypes.arrayOf(PropTypes.shape({
     text: PropTypes.string.isRequired,
     completed: PropTypes.bool.isRequired
   })),
@@ -354,14 +351,14 @@ App.propTypes = {
   ]).isRequired
 };
 
-function selectTodos(filter) {
+function selectTodos(todos, filter) {
   switch (filter) {
   case VisibilityFilters.SHOW_ALL:
-    return function(todo){return true}
+    return todos;
   case VisibilityFilters.SHOW_COMPLETED:
-    return function(todo){return todo.completed};
+    return todos.filter(todo => todo.completed);
   case VisibilityFilters.SHOW_ACTIVE:
-    return function(todo){return !todo.completed};
+    return todos.filter(todo => !todo.completed);
   }
 }
 
@@ -369,9 +366,8 @@ function selectTodos(filter) {
 // Note: use https://github.com/faassen/reselect for better performance.
 function select(state) {
   return {
-    todos: state.todos,
-    visibilityFilter: state.visibilityFilter,
-    filteringCriteria: selectTodos(state.visibilityFilter)
+    visibleTodos: selectTodos(state.todos, state.visibilityFilter),
+    visibilityFilter: state.visibilityFilter
   };
 }
 

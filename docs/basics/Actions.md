@@ -76,21 +76,21 @@ This makes them more portable and easier to test. To actually initiate a dispatc
 
 ```js
 dispatch(addTodo(text));
-dispatch(completeTodo(index));
+dispatch(completeTodo(id));
 ```
 
 Or create a **bound action creator** that automatically dispatches:
 
 ```js
 const boundAddTodo = (text) => dispatch(addTodo(text));
-const boundCompleteTodo = (index) => dispatch(completeTodo(index));
+const boundCompleteTodo = (id) => dispatch(completeTodo(id));
 ```
 
 You’ll be able to call them directly:
 
 ```
 boundAddTodo(text);
-boundCompleteTodo(index);
+boundCompleteTodo(id);
 ```
 
 The `dispatch()` function can be accessed directly from the store as [`store.dispatch()`](../api/Store.md#dispatch), but more likely you'll access it using a helper like [react-redux](http://github.com/gaearon/react-redux)'s `connect()`. You can use [`bindActionCreators()`](../api/bindActionCreators.md) to automatically bind many action creators to a `dispatch()` function.
@@ -126,8 +126,8 @@ export function addTodo(text) {
   return { type: ADD_TODO, text };
 }
 
-export function completeTodo(index) {
-  return { type: COMPLETE_TODO, index };
+export function completeTodo(id) {
+  return { type: COMPLETE_TODO, id };
 }
 
 export function setVisibilityFilter(filter) {
